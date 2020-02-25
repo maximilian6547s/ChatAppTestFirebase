@@ -7,8 +7,10 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -49,8 +51,8 @@ public class MainActivity extends AppCompatActivity {
     private EditText editTextMessage;
     private ImageView imageViewSendMessage;
     private ImageView imageViewAddImage;
-    private String author;
 
+    private SharedPreferences preferences;
 
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -78,6 +80,8 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
         recyclerViewMessages = findViewById(R.id.recyclerViewMessages);
         editTextMessage = findViewById(R.id.editTextMessage);
         imageViewSendMessage = findViewById(R.id.imageViewSendMessage);
@@ -93,8 +97,6 @@ public class MainActivity extends AppCompatActivity {
         storageRef = storage.getReference();
         StorageReference imagesRef = storageRef.child("images");
 
-        //
-        author = "Max";
         imageViewSendMessage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -115,7 +117,7 @@ public class MainActivity extends AppCompatActivity {
         //move code to onResume. подписывать на изменения данных лучше там
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-            Toast.makeText(this, "Logged", Toast.LENGTH_SHORT).show();
+            preferences.edit().putString("author", mAuth.getCurrentUser().getEmail()).apply();
         } else {
             signOut();
         }
@@ -140,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void sendMessage(String textOfMessage, String imageUrl) {
         Message message =  null;
+        String author = preferences.getString("author",null);
         if (textOfMessage != null && !textOfMessage.isEmpty()) {
             message = new Message(author, textOfMessage, System.currentTimeMillis(),null);
         } else if(imageUrl != null && !imageUrl.isEmpty()) {
@@ -233,7 +236,7 @@ public class MainActivity extends AppCompatActivity {
                 FirebaseUser user = mAuth.getCurrentUser();
                 if (user != null) {
                     Toast.makeText(this, user.getEmail(), Toast.LENGTH_SHORT).show();
-                    author = user.getEmail();
+                    preferences.edit().putString("author", user.getEmail()).apply();
                 }
                 // ...
             } else {
