@@ -5,6 +5,15 @@ public class Message {
     private String author;
     private String messageText;
     private long date;
+    private String imageUrl;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public String getAuthor() {
         return author;
@@ -33,9 +42,10 @@ public class Message {
     public Message() {
     }
 
-    public Message(String author, String messageText, long date) {
+    public Message(String author, String messageText, long date,String imageUrl) {
         this.author = author;
         this.messageText = messageText;
         this.date = date;
+        this.imageUrl = imageUrl;
     }
 }
